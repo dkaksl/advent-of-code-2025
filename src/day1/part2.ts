@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs'
 import { decrementDial, incrementDial } from '..'
 
 export const solve = () => {
-    const input = readFileSync("input.txt", "utf8")
+    const input = readFileSync("inputs/day1.txt", "utf8")
 
     let current = 50
     let zeroCount = 0
