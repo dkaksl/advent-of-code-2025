@@ -12,8 +12,8 @@ export const solve = () => {
 
         const rangeInvalidIDs: number[] = []
 
-        for (let i = from; i <= to; i++) {
-            const numberString = i.toString()
+        for (let current = from; current <= to; current++) {
+            const numberString = current.toString()
             if (numberString.length % 2 !== 0) {
                 continue
             }
@@ -21,7 +21,6 @@ export const solve = () => {
             const secondHalf = numberString.slice(numberString.length / 2)
             if (firstHalf === secondHalf) {
                 rangeInvalidIDs.push(parseInt(numberString))
-
             }
         }
 
