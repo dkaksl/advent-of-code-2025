@@ -14,7 +14,7 @@ public class Main {
 
         System.out.printf("solving day %s part %s challenge%n", day, part);
         System.out.printf("current dir %s%n", System.getProperty("user.dir"));
-        
+
         Dial dial = new Dial(50);
 
         File input = new File(String.format("inputs/day%s.txt", day));
@@ -31,7 +31,7 @@ public class Main {
             }
         }
 
-        System.out.printf("got zero count %s", dial.getZeroCount());
+        System.out.printf("got zero count %s%n", dial.getZeroCount());
 
     }
 }
