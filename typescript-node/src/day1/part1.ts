@@ -2,14 +2,12 @@ import { readFileSync } from 'node:fs'
 import { decrementDial, incrementDial } from '..'
 
 export const solve = () => {
-    const input = readFileSync("inputs/day1.txt", "utf8")
+    const input = readFileSync("../inputs/day1.txt", "utf8")
 
     let current = 50
     let zeroCount = 0
 
     for (const row of input.split("\n")) {
-        let rowZeroCount = 0
-
         const rotationDirection = row.substring(0, 1)
         const rotationSteps = parseInt(row.substring(1), 10)
 
@@ -19,13 +17,12 @@ export const solve = () => {
             } else {
                 current = incrementDial(current)
             }
-            if (current === 0) {
-                rowZeroCount++
-            }
         }
 
-        console.log(`the dial was rotated ${rotationDirection}${rotationSteps} to point at ${current}; it pointed at 0 ${rowZeroCount} times`)
-        zeroCount += rowZeroCount
+        console.log(`the dial was rotated ${rotationDirection}${rotationSteps} to point at ${current}`)
+        if (current === 0) {
+            zeroCount++
+        }
     }
 
     console.log(`the dial pointed at 0 ${zeroCount} times`)

@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs'
 
 export const solve = () => {
-    const input = readFileSync("inputs/day2.txt", "utf8")
+    const input = readFileSync("../inputs/day2.txt", "utf8")
 
     const invalidIDsums = []
 
