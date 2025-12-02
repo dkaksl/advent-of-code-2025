@@ -2,6 +2,7 @@
 import { solve as solveDay1Part1 } from './day1/part1'
 import { solve as solveDay1Part2 } from './day1/part2'
 import { solve as solveDay2Part1 } from './day2/part1'
+import { solve as solveDay2Part2 } from './day2/part2'
 const main = () => {
     const args = process.argv.slice(2)
     if (args.length !== 2) {
@@ -21,6 +22,9 @@ const main = () => {
     } else if (day === 2) {
         if (part === 1) {
             solveDay2Part1()
+        }
+        else if (part === 2) {
+            solveDay2Part2()
         }
     }
 }
