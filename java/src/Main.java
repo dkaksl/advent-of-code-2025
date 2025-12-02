@@ -14,11 +14,10 @@ public class Main {
 
         System.out.printf("solving day %s part %s challenge%n", day, part);
         System.out.printf("current dir %s%n", System.getProperty("user.dir"));
-        File input = new File(String.format("inputs/day%s.txt", day));
-
-
+        
         Dial dial = new Dial(50);
 
+        File input = new File(String.format("inputs/day%s.txt", day));
         try (Scanner inputReader = new Scanner(input)) {
             while (inputReader.hasNextLine()) {
                 String row = inputReader.nextLine();
