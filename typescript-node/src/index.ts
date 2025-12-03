@@ -8,6 +8,8 @@ const main = () => {
     const day = parseInt(args[0], 10)
     const part = parseInt(args[1], 10)
 
+    console.log(`solving day ${day} part ${part} challenge`)
+
     require(`./day${day}/part${part}`).solve()
 }
 
