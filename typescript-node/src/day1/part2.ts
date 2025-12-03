@@ -1,5 +1,5 @@
 import { readFileSync } from 'node:fs'
-import { decrementDial, incrementDial } from '..'
+import { decrementDial, incrementDial } from './util'
 
 export const solve = () => {
     const input = readFileSync("../inputs/day1.txt", "utf8")
