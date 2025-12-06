@@ -8,75 +8,65 @@ export const solve = () => {
   const lastRow = rows[rowCount - 1]
   const rowWidth = rows[0].length
 
-  const numbers = []
-
-  const totals: number[] = []
-
   let grandTotal = 0
-  for (
-    let problemIndex = 0;
-    problemIndex < lastRow.split(/\s+/).length;
-    problemIndex++
-  ) {
-    const operators = []
-    for (let columnIndex = 0; columnIndex < rowWidth; columnIndex++) {
-      if (!/\s/.test(lastRow[columnIndex])) {
-        const remainingColumns = lastRow.slice(columnIndex)
-        const nextPlusIndex = remainingColumns.indexOf('+')
-        const nextTimesIndex = remainingColumns.indexOf('*')
-        let nextOperatorIndex: number | undefined
-        if (nextPlusIndex === -1 && nextTimesIndex === -1) {
-          nextOperatorIndex = undefined
-        } else if (nextPlusIndex === -1) {
-          nextOperatorIndex = nextTimesIndex
-        } else if (nextTimesIndex === -1) {
-          nextOperatorIndex = nextPlusIndex
-        } else {
-          nextOperatorIndex = Math.min(nextPlusIndex, nextTimesIndex)
-        }
-        operators.push({
-          operator: lastRow[columnIndex],
-          index: columnIndex,
-          nextOperatorIndex
-        })
+  const operators = []
+  console.log(`collecting problem coordinates`)
+  for (let columnIndex = 0; columnIndex < rowWidth; columnIndex++) {
+    if (!/\s/.test(lastRow[columnIndex])) {
+      const remainingColumns = lastRow.slice(columnIndex + 1)
+      const nextPlusIndex = remainingColumns.indexOf('+')
+      const nextTimesIndex = remainingColumns.indexOf('*')
+      let nextOperatorIndex: number | undefined
+      if (nextPlusIndex === -1 && nextTimesIndex === -1) {
+        nextOperatorIndex = undefined
+      } else if (nextPlusIndex === -1) {
+        nextOperatorIndex = nextTimesIndex + columnIndex
+      } else if (nextTimesIndex === -1) {
+        nextOperatorIndex = nextPlusIndex + columnIndex
+      } else {
+        nextOperatorIndex = Math.min(
+          nextPlusIndex + columnIndex,
+          nextTimesIndex + columnIndex
+        )
       }
+      operators.push({
+        operator: lastRow[columnIndex],
+        index: columnIndex,
+        nextOperatorIndex
+      })
     }
+  }
 
-    for (const { operator, index, nextOperatorIndex } of operators) {
-      let nextIndex = nextOperatorIndex ?? rows.length
-      let total = 0
-      const numbers: string[] = []
+  for (const { operator, index, nextOperatorIndex } of operators) {
+    console.log(
+      `operator: ${operator}; index: ${index}; nextIndex: ${nextOperatorIndex}`
+    )
+    let nextIndex = nextOperatorIndex ?? rowWidth
+    const problemNumbers = []
+
+    for (let digitIndex = index; digitIndex < nextIndex; digitIndex++) {
+      const columnNumberDigits = []
       for (let rowIndex = 0; rowIndex < rows.length - 1; rowIndex++) {
         const row = rows[rowIndex]
-
-        for (let digitIndex = index; digitIndex < nextIndex; digitIndex++) {
-          if (!numbers[digitIndex]) {
-            numbers[digitIndex] = []
-          }
-          if (row[digitIndex]) {
-            numbers[digitIndex].push(row[digitIndex])
-          }
+        const c = row[digitIndex]
+        if (c) {
+          columnNumberDigits.push(c)
         }
       }
-      grandTotal += total
+      const mergedColumnNumber = columnNumberDigits.join('')
+      console.log(
+        `extracted number ${mergedColumnNumber} from column ${digitIndex}`
+      )
+      problemNumbers.push(parseInt(mergedColumnNumber))
     }
+    console.log(`problem numbers ${problemNumbers}`)
+    const problemTotal =
+      operator === '*'
+        ? problemNumbers.reduce((acc, curr) => acc * curr, 1)
+        : problemNumbers.reduce((acc, curr) => acc + curr, 0)
+    console.log(`got problem total ${problemTotal}`)
+
+    grandTotal += problemTotal
   }
-
-  for (let columnIndex = 0; columnIndex < operators.length; columnIndex++) {
-    let columnWidth = 0
-    for (let rowIndex = 0; rowIndex < rows.length - 1; rowIndex++) {
-      const row = rows[rowIndex].split(/\s+/)
-      const rowDigits = row[columnIndex].length
-      if (row[columnIndex].length > columnWidth) {
-        columnWidth = rowDigits
-      }
-    }
-
-    const columnNumbers = []
-
-    for (let rowIndex = 0; rowIndex < rows.length - 1; rowIndex++) {
-      const row = rows[rowIndex].split(/\s+/)
-      for (let digitIndex = 0; digitIndex < columnWidth; digitIndex++) {}
-    }
-  }
+  console.log(`grand total ${grandTotal}`)
 }
