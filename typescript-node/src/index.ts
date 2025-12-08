@@ -1,3 +1,5 @@
+import { existsSync, readFileSync } from 'node:fs'
+
 const main = () => {
   const args = process.argv.slice(2)
   if (args.length !== 2) {
@@ -9,7 +11,14 @@ const main = () => {
 
   console.log(`solving day ${day} part ${part} challenge`)
 
-  require(`./day${day}/part${part}`).solve()
+  const inputPath = `../inputs/day${day}.txt`
+
+  if (!existsSync(inputPath)) {
+    throw new Error(`missing day ${day} input file at ${inputPath}`)
+  }
+
+  const input = readFileSync(inputPath, 'utf8')
+  require(`./day${day}/part${part}`).solve(input)
 }
 
 main()
