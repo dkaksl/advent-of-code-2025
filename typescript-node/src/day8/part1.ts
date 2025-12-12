@@ -1,17 +1,56 @@
+import { writeFileSync } from 'node:fs'
+
 interface Point {
-  id: number
+  id: string
   coordinates: { x: number; y: number; z: number }
 }
 
 export const solve = (input: string) => {
   const rows = input.split('\n')
-  const junctionBoxes: Point[] = []
-  const junctionBoxesByDistance: { distance: number; a: Point; b: Point }[] = []
+  const junctionBoxes = getCoordinates(rows)
 
-  for (let id = 0; id < rows.length; id++) {
-    const coordinates = rows[id].split(',')
+  const junctionBoxesByDistance = getPairsByDistance(junctionBoxes)
+  for (const pairs of junctionBoxesByDistance.slice(0, 10)) {
+    console.log(`${pairs.a.id};\t${pairs.b.id};\t${pairs.distance}`)
+  }
+
+  const circuits: Array<Set<string>> = []
+
+  for (let i = 0; i < junctionBoxesByDistance.length; i++) {
+    const { a, b } = junctionBoxesByDistance[i]
+    const includingCircuit = circuits.find((c) => c.has(a.id) || c.has(b.id))
+
+    if (includingCircuit) {
+      includingCircuit.add(a.id)
+      includingCircuit.add(b.id)
+    } else {
+      const circuit = new Set<string>()
+      circuit.add(a.id)
+      circuit.add(b.id)
+      circuits.push(circuit)
+    }
+  }
+  console.log(`got ${circuits.length} circuits`)
+  circuits.sort((a, b) => b.size - a.size)
+  const output = circuits
+    .map((c) =>
+      Array.from(c)
+        .sort((a, b) => parseInt(a) - parseInt(b))
+        .join('\t')
+    )
+    .join('\n')
+  writeFileSync('output.txt', output)
+  const top3Sizes = circuits.slice(0, 3).map((c) => c.size)
+  console.log(`top 3 circuit sizes: ${top3Sizes}`)
+  console.log(`answer: ${top3Sizes.reduce((acc, curr) => acc * curr, 1)}`)
+}
+
+const getCoordinates = (rows: string[]) => {
+  const junctionBoxes = []
+  for (let i = 0; i < rows.length; i++) {
+    const coordinates = rows[i].split(',')
     junctionBoxes.push({
-      id,
+      id: rows[i],
       coordinates: {
         x: parseInt(coordinates[0]),
         y: parseInt(coordinates[1]),
@@ -19,69 +58,7 @@ export const solve = (input: string) => {
       }
     })
   }
-
-  for (let id = 0; id < junctionBoxes.length; id++) {
-    const current = junctionBoxes[id]
-    const rest = JSON.parse(JSON.stringify(junctionBoxes))
-    rest.splice(id, 1)
-    const { nearestPoint, distance } = getClosestJunctionBox(current, rest)
-    console.log(
-      `closest junction box to id ${current.id} (${JSON.stringify(current.coordinates)}) is id ${nearestPoint.id} (${JSON.stringify(nearestPoint.coordinates)}); d: ${distance}`
-    )
-    if (
-      junctionBoxesByDistance.find(
-        (x) =>
-          [x.a.id, x.b.id].sort().toString() ===
-          [current.id, nearestPoint.id].sort().toString()
-      )
-    ) {
-      continue
-    } else {
-      junctionBoxesByDistance.push({ distance, a: current, b: nearestPoint })
-    }
-  }
-  junctionBoxesByDistance.sort((a, b) => a.distance - b.distance)
-  console.log(junctionBoxesByDistance.length)
-  console.log(junctionBoxesByDistance)
-
-  const circuits: Array<Set<number>> = []
-
-  for (let i = 0; i < junctionBoxesByDistance.length; i++) {
-    console.log(`circuit count: ${circuits.length}`)
-    const { a, b } = junctionBoxesByDistance[i]
-    const includingCircuits = []
-    for (let ii = 0; ii < circuits.length; ii++) {
-      if (circuits[ii].has(a.id) || circuits[ii].has(b.id)) {
-        includingCircuits.push({ index: ii, circuit: circuits[ii] })
-      }
-    }
-
-    if (includingCircuits.length === 0) {
-      const circuit = new Set<number>()
-      circuit.add(a.id)
-      circuit.add(b.id)
-      circuits.push(circuit)
-    } else if (includingCircuits.length === 1) {
-      const includingCircuit = circuits[includingCircuits[0].index]
-      includingCircuit.add(a.id)
-      includingCircuit.add(b.id)
-    } else {
-      console.log(
-        `${includingCircuits.length} circuits contain points ${a.id} or ${b.id} and need to be joined`
-      )
-      // TODO
-    }
-  }
-
-  console.log(`got ${circuits.length} circuits`)
-  circuits.sort((a, b) => b.size - a.size)
-  const topNCircuits = circuits.slice(0, 10)
-  for (const c of topNCircuits) {
-    console.log(Array.from(c).sort())
-  }
-  const top3Sizes = circuits.slice(0, 3).map((c) => c.size)
-  console.log(`top 3 circuit sizes: ${top3Sizes}`)
-  console.log(`answer: ${top3Sizes.reduce((acc, curr) => acc * curr, 1)}`)
+  return junctionBoxes
 }
 
 const getDistance = (a: Point, b: Point) => {
@@ -104,4 +81,29 @@ const getClosestJunctionBox = (a: Point, points: Point[]) => {
     }
   }
   return { nearestPoint, distance: nearestDistance }
+}
+
+const getPairsByDistance = (boxes: Array<Point>) => {
+  const junctionBoxesByDistance: { distance: number; a: Point; b: Point }[] = []
+
+  for (let id = 0; id < boxes.length; id++) {
+    const current = boxes[id]
+    const rest = JSON.parse(JSON.stringify(boxes))
+    rest.splice(id, 1)
+    const { nearestPoint, distance } = getClosestJunctionBox(current, rest)
+
+    if (
+      junctionBoxesByDistance.find(
+        (x) =>
+          [x.a.id, x.b.id].sort().toString() ===
+          [current.id, nearestPoint.id].sort().toString()
+      )
+    ) {
+      continue
+    } else {
+      junctionBoxesByDistance.push({ distance, a: current, b: nearestPoint })
+    }
+  }
+  junctionBoxesByDistance.sort((a, b) => a.distance - b.distance)
+  return junctionBoxesByDistance
 }
