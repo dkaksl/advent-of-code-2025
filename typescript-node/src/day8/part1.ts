@@ -6,17 +6,18 @@ interface Point {
 }
 
 export const solve = (input: string) => {
+  const limit = 10 // TODO: change to 1000 for challenge input
   const rows = input.split('\n')
   const junctionBoxes = getCoordinates(rows)
 
   const junctionBoxesByDistance = getPairsByDistance(junctionBoxes)
-  for (const pairs of junctionBoxesByDistance.slice(0, 10)) {
+  for (const pairs of junctionBoxesByDistance.slice(0, limit)) {
     console.log(`${pairs.a.id};\t${pairs.b.id};\t${pairs.distance}`)
   }
 
   const circuits: Array<Set<string>> = []
 
-  for (let i = 0; i < junctionBoxesByDistance.length; i++) {
+  for (let i = 0; i < limit; i++) {
     const { a, b } = junctionBoxesByDistance[i]
     const includingCircuit = circuits.find((c) => c.has(a.id) || c.has(b.id))
 
@@ -29,6 +30,7 @@ export const solve = (input: string) => {
       circuit.add(b.id)
       circuits.push(circuit)
     }
+    // TODO: merge overlapping circuits
   }
   console.log(`got ${circuits.length} circuits`)
   circuits.sort((a, b) => b.size - a.size)
@@ -84,26 +86,24 @@ const getClosestJunctionBox = (a: Point, points: Point[]) => {
 }
 
 const getPairsByDistance = (boxes: Array<Point>) => {
-  const junctionBoxesByDistance: { distance: number; a: Point; b: Point }[] = []
+  const uniquePairs = new Map<
+    string,
+    { distance: number; a: Point; b: Point }
+  >()
+  for (let i = 0; i < boxes.length; i++) {
+    for (let ii = 0; ii < boxes.length; ii++) {
+      if (i === ii) {
+        continue
+      }
 
-  for (let id = 0; id < boxes.length; id++) {
-    const current = boxes[id]
-    const rest = JSON.parse(JSON.stringify(boxes))
-    rest.splice(id, 1)
-    const { nearestPoint, distance } = getClosestJunctionBox(current, rest)
-
-    if (
-      junctionBoxesByDistance.find(
-        (x) =>
-          [x.a.id, x.b.id].sort().toString() ===
-          [current.id, nearestPoint.id].sort().toString()
-      )
-    ) {
-      continue
-    } else {
-      junctionBoxesByDistance.push({ distance, a: current, b: nearestPoint })
+      const a = boxes[i]
+      const b = boxes[ii]
+      const d = getDistance(a, b)
+      const key = [a.id, b.id].sort().join('_')
+      uniquePairs.set(key, { distance: d, a, b })
     }
   }
-  junctionBoxesByDistance.sort((a, b) => a.distance - b.distance)
-  return junctionBoxesByDistance
+  return Array.from(uniquePairs, ([, value]) => ({ ...value })).sort(
+    (a, b) => a.distance - b.distance
+  )
 }
