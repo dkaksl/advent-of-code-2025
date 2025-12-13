@@ -6,7 +6,7 @@ interface Point {
 }
 
 export const solve = (input: string) => {
-  const limit = 10 // TODO: change to 1000 for challenge input
+  const limit = 1000 // TODO: change to 1000 for challenge input
   const rows = input.split('\n')
   const junctionBoxes = getCoordinates(rows)
 
@@ -30,9 +30,11 @@ export const solve = (input: string) => {
       circuit.add(b.id)
       circuits.push(circuit)
     }
-    // TODO: merge overlapping circuits
   }
   console.log(`got ${circuits.length} circuits`)
+
+  mergeOverlappingCircuits(circuits)
+
   circuits.sort((a, b) => b.size - a.size)
   const output = circuits
     .map((c) =>
@@ -42,6 +44,7 @@ export const solve = (input: string) => {
     )
     .join('\n')
   writeFileSync('output.txt', output)
+
   const top3Sizes = circuits.slice(0, 3).map((c) => c.size)
   console.log(`top 3 circuit sizes: ${top3Sizes}`)
   console.log(`answer: ${top3Sizes.reduce((acc, curr) => acc * curr, 1)}`)
@@ -71,20 +74,6 @@ const getDistance = (a: Point, b: Point) => {
   )
 }
 
-const getClosestJunctionBox = (a: Point, points: Point[]) => {
-  const first = points[0]
-  let nearestPoint = first
-  let nearestDistance = getDistance(a, first)
-  for (const point of points.slice(1)) {
-    const currentDistance = getDistance(a, point)
-    if (currentDistance < nearestDistance) {
-      nearestDistance = currentDistance
-      nearestPoint = point
-    }
-  }
-  return { nearestPoint, distance: nearestDistance }
-}
-
 const getPairsByDistance = (boxes: Array<Point>) => {
   const uniquePairs = new Map<
     string,
@@ -106,4 +95,31 @@ const getPairsByDistance = (boxes: Array<Point>) => {
   return Array.from(uniquePairs, ([, value]) => ({ ...value })).sort(
     (a, b) => a.distance - b.distance
   )
+}
+
+const mergeOverlappingCircuits = (circuits: Array<Set<string>>) => {
+  let mergingOverlappingCircuits = true
+  while (mergingOverlappingCircuits) {
+    console.log(`merging overlapping circuits from ${circuits.length} circuits`)
+    let hasMergedCircuits = false
+    for (let i = 0; i < circuits.length; i++) {
+      for (let ii = 0; ii < circuits.length; ii++) {
+        if (i === ii) {
+          continue
+        }
+        if (circuits[i].intersection(circuits[ii]).size) {
+          console.log(`circuits ${i} and ${ii} overlap; merging`)
+          hasMergedCircuits = true
+          const merged = new Set([...circuits[i], ...circuits[ii]])
+          circuits[i] = merged
+          circuits.splice(ii, 1)
+          break
+        }
+      }
+    }
+    if (!hasMergedCircuits) {
+      console.log(`no more circuits to merge`)
+      mergingOverlappingCircuits = false
+    }
+  }
 }
