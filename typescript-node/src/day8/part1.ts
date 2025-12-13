@@ -6,7 +6,7 @@ interface Point {
 }
 
 export const solve = (input: string) => {
-  const limit = 1000 // TODO: change to 1000 for challenge input
+  const limit = 1000
   const rows = input.split('\n')
   const junctionBoxes = getCoordinates(rows)
 
@@ -36,15 +36,6 @@ export const solve = (input: string) => {
   mergeOverlappingCircuits(circuits)
 
   circuits.sort((a, b) => b.size - a.size)
-  const output = circuits
-    .map((c) =>
-      Array.from(c)
-        .sort((a, b) => parseInt(a) - parseInt(b))
-        .join('\t')
-    )
-    .join('\n')
-  writeFileSync('output.txt', output)
-
   const top3Sizes = circuits.slice(0, 3).map((c) => c.size)
   console.log(`top 3 circuit sizes: ${top3Sizes}`)
   console.log(`answer: ${top3Sizes.reduce((acc, curr) => acc * curr, 1)}`)
