@@ -6,8 +6,8 @@ const main = () => {
     throw new Error(`invalid number of args: ${args.length}`)
   }
 
-  const day = parseInt(args[0], 10)
-  const part = parseInt(args[1], 10)
+  const day = args[0].padStart(2, '0')
+  const part = parseInt(args[1].padStart(2, '0'), 10)
 
   console.log(`solving day ${day} part ${part} challenge`)
 
