@@ -21,5 +21,8 @@
     "trailingComma": "none",
     "semi": false,
     "singleQuote": true
+  },
+  "dependencies": {
+    "combinatorial-generators": "^1.1.2"
   }
 }
