@@ -1,7 +1,9 @@
+import { powerSet } from 'combinatorial-generators'
+
 export const solve = (input: string) => {
   const rows = input.split('\n')
 
-  let presses = 0
+  let totalPresses = 0
   for (const row of rows) {
     console.log(row)
     const match = row.match(/\[(.+)\]\s(.*)\s{(.*)}/)!
@@ -16,7 +18,7 @@ export const solve = (input: string) => {
     )
     console.log(lightDiagramInteger)
 
-    const buttonIntegers = []
+    const buttonIntegers: number[] = []
     for (const buttonDigits of buttons.split(/\s/)) {
       const digits = buttonDigits
         .match(/\((.*)\)/)![1]
@@ -29,9 +31,26 @@ export const solve = (input: string) => {
       }
       buttonIntegers.push(parseInt(digitString.join(''), 2))
     }
-    console.log(buttonIntegers)
-    console.log(buttonIntegers.map((i) => i.toString(2)))
+
+    let solved = false
+    for (const set of powerSet(buttonIntegers)) {
+      let n = 0
+      let presses = 0
+      if (solved) {
+        break
+      }
+
+      for (const d of set) {
+        presses++
+        n ^= d
+        if (n === lightDiagramInteger) {
+          console.log(`solved with set ${set} in ${presses} presses`)
+          solved = true
+          totalPresses += presses
+        }
+      }
+    }
   }
 
-  console.log(`presses: ${presses}`)
+  console.log(`presses: ${totalPresses}`)
 }
